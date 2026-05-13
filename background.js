@@ -15,6 +15,8 @@ import {
   clearAllData
 } from './lib/db.js';
 
+import { AI_SYSTEM_PROMPT } from './lib/ai-template.js';
+
 const CACHE_DURATION_MS = 10 * 60 * 1000;
 
 let fetchController = null;
@@ -52,6 +54,15 @@ async function handleMessage(message, sender, sendResponse) {
       case 'exportCSV':
         await handleExportCSV(message, sendResponse);
         break;
+      case 'getAiConfig':
+        await handleGetAiConfig(sendResponse);
+        break;
+      case 'saveAiConfig':
+        await handleSaveAiConfig(message, sendResponse);
+        break;
+      case 'callAiApi':
+        await handleCallAiApi(message, sendResponse);
+        break;
       default:
         sendResponse({ success: false, error: 'Unknown action' });
     }
@@ -78,7 +89,7 @@ async function handleFetchSinglePage(message, sendResponse) {
     }
 
     const result = await fetchSearchResults(keyword, page);
-    
+
     await clearVideosByKeyword(keyword);
     await saveVideos(result.videos, keyword);
     await saveCache(keyword, result.pageInfo.numPages, result.videos.length);
@@ -263,6 +274,80 @@ async function handleExportCSV(message, sendResponse) {
     csv: csvContent,
     filename: `bilibili_${keyword}_${Date.now()}.csv`
   });
+}
+
+async function handleGetAiConfig(sendResponse) {
+  try {
+    const result = await chrome.storage.local.get(['aiConfig']);
+    sendResponse({ success: true, config: result.aiConfig || {} });
+  } catch (error) {
+    sendResponse({ success: false, error: error.message });
+  }
+}
+
+async function handleSaveAiConfig(message, sendResponse) {
+  const { config } = message;
+  try {
+    await chrome.storage.local.set({ aiConfig: config });
+    sendResponse({ success: true });
+  } catch (error) {
+    sendResponse({ success: false, error: error.message });
+  }
+}
+
+async function handleCallAiApi(message, sendResponse) {
+  const { prompt } = message;
+
+  try {
+    const result = await chrome.storage.local.get(['aiConfig']);
+    const config = result.aiConfig || {};
+
+    if (!config.apiKey || !config.endpoint) {
+      sendResponse({ success: false, error: '请先配置 API' });
+      return;
+    }
+
+    const response = await fetch(config.endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${config.apiKey}`
+      },
+      body: JSON.stringify({
+        model: config.model || 'gpt-3.5-turbo',
+        messages: [
+          { role: 'system', content: AI_SYSTEM_PROMPT },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.7
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      sendResponse({ success: false, error: `API 错误: ${response.status} - ${errorText}` });
+      return;
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+
+    if (!content) {
+      sendResponse({ success: false, error: 'API 返回内容为空' });
+      return;
+    }
+
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      sendResponse({ success: false, error: '无法解析 JSON' });
+      return;
+    }
+
+    const parsedData = JSON.parse(jsonMatch[0]);
+    sendResponse({ success: true, data: parsedData });
+  } catch (error) {
+    sendResponse({ success: false, error: error.message });
+  }
 }
 
 initDB().catch(console.error);
