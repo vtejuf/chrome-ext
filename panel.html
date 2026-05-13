@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Response Data Extractor</title>
+  <link rel="stylesheet" href="panel.css">
+</head>
+
+<body>
+  <div class="container">
+    <div class="config-section">
+      <h3>配置</h3>
+      <div class="form-group">
+        <label>URL正则表达式:</label>
+        <input type="text" id="urlPattern" placeholder="例如: api/example.*"
+          value="api.zsxq.com\/v2\/groups\/\d+\/topics" />
+      </div>
+      <div class="form-group">
+        <label>数据路径 (JSONPath, 用.分隔):</label>
+        <input type="text" id="dataPath" placeholder="例如: data.items[*].content"
+          value="resp_data.topics[*].talk.text" />
+      </div>
+      <div class="btn-group">
+        <button id="startBtn" class="btn btn-primary">开始监听</button>
+        <button id="stopBtn" class="btn btn-secondary" disabled>停止监听</button>
+        <button id="clearBtn" class="btn btn-secondary">清空数据</button>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <span id="status">状态: 未监听</span>
+      <span id="matchCount">匹配数: 0</span>
+    </div>
+
+    <div class="data-section">
+      <div class="data-header">
+        <h3>抓取数据</h3>
+        <div class="actions">
+          <button id="selectAllBtn" class="btn btn-small">全选</button>
+          <button id="exportBtn" class="btn btn-primary btn-small" disabled>导出TXT</button>
+        </div>
+      </div>
+      <div class="data-list" id="dataList">
+        <div class="empty-hint">暂无数据，请配置后开始监听</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="panel.js"></script>
+</body>
+
+</html>
