@@ -142,12 +142,15 @@
               <button id="bili-copy-ai-prompt" style="flex: 1; padding: 10px; background: #f8f9fa; color: #333; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; cursor: pointer;">
                 📋 复制指令
               </button>
+              <button id="bili-export-ai-prompt" style="flex: 1; padding: 10px; background: #f8f9fa; color: #333; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; cursor: pointer;">
+                📥 导出指令
+              </button>
             </div>
             
             <div id="bili-ai-api-status" style="display: none; padding: 8px; background: #fff3cd; border-radius: 6px; font-size: 12px; color: #856404; margin-bottom: 8px;"></div>
             
             <div id="bili-ai-paste-section" style="display: none; margin-bottom: 8px;">
-              <textarea id="bili-ai-response" placeholder="粘贴 AI 回复的 JSON" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px; resize: vertical; box-sizing: border-box; font-family: monospace;"></textarea>
+              <textarea id="bili-ai-response" placeholder="粘贴 AI 回复的 Markdown 内容" rows="6" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px; resize: vertical; box-sizing: border-box; font-family: monospace;"></textarea>
               <button id="bili-import-ai-result" style="width: 100%; padding: 8px; background: #f8f9fa; color: #333; border: 1px solid #ddd; border-radius: 6px; font-size: 12px; cursor: pointer; margin-top: 6px;">
                 📥 导入结果
               </button>
@@ -174,6 +177,7 @@
     document.getElementById('bili-export-csv').addEventListener('click', exportCSV);
     document.getElementById('bili-ai-analyze').addEventListener('click', startAiAnalyze);
     document.getElementById('bili-copy-ai-prompt').addEventListener('click', copyAiPrompt);
+    document.getElementById('bili-export-ai-prompt').addEventListener('click', exportAiPrompt);
     document.getElementById('bili-import-ai-result').addEventListener('click', importAiResult);
   }
 
@@ -391,10 +395,111 @@
       favorites: v.favorites,
       duration: v.duration,
       pubdate: v.pubdate,
-      bvid: v.bvid
+      // bvid: v.bvid
     }));
 
-    return `## 用户分析要求
+    const systemPrompt = `你是一个B站内容分析专家。你的任务是根据用户的分析要求，对搜索结果中的视频数据进行多维度评估。
+
+## 数据说明
+
+每条视频包含以下字段：
+- title: 视频标题
+- description: 视频简介
+- author: UP主名称
+- tag: 视频标签（逗号分隔）
+- typename: 视频分区（如"财经商业"）
+- play: 播放量
+- like: 点赞数
+- review: 评论数
+- danmaku: 弹幕数
+- favorites: 收藏数
+- duration: 视频时长（如"41:24"）
+- pubdate: 发布时间戳（秒级）
+
+## 分析规则
+
+1. 忽略与当前搜索主题不相干的数据
+2. 严格基于用户提出的分析要求进行评价
+3. 综合利用文本数据（标题、简介、标签）和量化数据（播放、点赞、收藏、评论、弹幕）做综合判断
+4. 不要只依赖播放量，互动率（点赞/播放、收藏/播放）更能反映内容质量
+
+## 输出格式
+
+按以下 Markdown 格式输出，总分总结构：
+
+---
+
+## 📊 整体分析
+
+[1-2句话概括这批视频的整体情况，有效视频数、被过滤数、核心特征]
+
+---
+
+## 🔥 主题汇总
+
+[分析这批视频中重复出现的主题、关键词、技术点等，比如多次出现的战法名称、指标、概念等，归纳总结]
+
+---
+
+## 🏆 排行榜
+
+### Top 3 必看
+
+| 排名 | 标题 | UP主 | 评分 | 评级 | 一句话评语 |
+|------|------|------|------|------|------------|
+| 1 | [标题] | [UP主] | [分数] | [评级] | [评语] |
+| 2 | ... | ... | ... | ... | ... |
+| 3 | ... | ... | ... | ... | ... |
+
+### 完整排名（Top 10）
+
+1. **[标题]** - [UP主] | 评分:[分数] | 评级:[评级]
+   - ✅ 优势：[优势1]、[优势2]
+   - ⚠️ 不足：[不足1]
+   - 💬 评语：[一句话评语]
+
+2. ...
+
+---
+
+## 💡 内容洞察
+
+[这个主题下什么样的内容受欢迎、有什么内容缺口、给观众的建议]
+
+---
+
+## 📋 UP主评级说明
+
+| 评级 | 特征 |
+|------|------|
+| 🔴 夯 | 内容质量极高，数据表现优异，持续输出，值得关注 |
+| 🟠 顶级 | 内容质量好，数据表现良好，有专业深度 |
+| 🟡 人上人 | 内容尚可，有一定数据，但缺乏亮点 |
+| ⚪ NPC | 内容普通，数据一般，没有特别之处 |
+| ⚫ 拉完了 | 内容质量差，数据惨淡，或明显标题党/蹭热点 |
+
+---
+
+## UP主评级标准
+
+使用"夯 → 顶级 → 人上人 → NPC → 拉完了"五级评价体系：
+
+- 夯：内容质量极高，数据表现优异，在该领域有持续输出能力，值得关注
+- 顶级：内容质量好，数据表现良好，有专业深度
+- 人上人：内容尚可，有一定数据表现，但缺乏亮点
+- NPC：内容普通，数据一般，没有特别之处
+- 拉完了：内容质量差，数据惨淡，或者明显标题党/蹭热点
+
+## 注意事项
+
+- 只输出 Markdown 格式，不要有任何 JSON 或代码块包裹
+- 排行榜按评分从高到低排序
+- 只输出 Top 10，不要全部列出
+- 评语要犀利、有趣，带B站风格`;
+
+    return `${systemPrompt}
+
+## 用户分析要求
 ${requirement}
 
 ## 搜索关键词
@@ -415,6 +520,24 @@ ${JSON.stringify(videosData, null, 2)}`;
     }).catch(() => {
       alert('复制失败');
     });
+  }
+
+  function exportAiPrompt() {
+    const prompt = buildAiPrompt();
+    if (!prompt) return;
+
+    const keyword = getKeyword();
+    const blob = new Blob([prompt], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `AI分析指令_${keyword}_${Date.now()}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    const btn = document.getElementById('bili-export-ai-prompt');
+    btn.textContent = '✅ 已导出';
+    setTimeout(() => { btn.textContent = '📥 导出指令'; }, 2000);
   }
 
   async function startAiAnalyze() {
@@ -441,7 +564,7 @@ ${JSON.stringify(videosData, null, 2)}`;
       });
 
       if (response.success) {
-        renderAiResult(response.data);
+        renderAiResult(response.content);
       } else {
         alert('AI 分析失败：' + response.error);
       }
@@ -455,64 +578,46 @@ ${JSON.stringify(videosData, null, 2)}`;
 
   function importAiResult() {
     const textarea = document.getElementById('bili-ai-response');
-    let data;
-    try {
-      data = JSON.parse(textarea.value.trim());
-    } catch {
-      alert('JSON 格式错误');
+    const content = textarea.value.trim();
+    if (!content) {
+      alert('请粘贴 AI 回复内容');
       return;
     }
-    if (!data.rankings || !data.summary) {
-      alert('JSON 缺少必要字段');
-      return;
-    }
-    renderAiResult(data);
+    renderAiResult(content);
   }
 
-  function renderAiResult(data) {
+  function renderAiResult(markdown) {
     const resultDiv = document.getElementById('bili-ai-result');
     resultDiv.style.display = 'block';
 
-    const levelColors = {
-      '夯': '#ff4757',
-      '顶级': '#ff6b81',
-      '人上人': '#ffa502',
-      'NPC': '#747d8c',
-      '拉完了': '#2f3542'
-    };
-
-    const rankingsHtml = (data.rankings || []).slice(0, 10).map(item => {
-      const color = levelColors[item.upLevel] || '#747d8c';
-      return `
-        <div style="padding: 10px; margin-bottom: 8px; background: #f8f9fa; border-radius: 6px; border-left: 3px solid ${color};">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-            <span style="font-weight: bold; font-size: 13px; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">#${item.rank} ${item.title}</span>
-            <span style="font-size: 11px; padding: 2px 8px; border-radius: 10px; background: ${color}; color: white; flex-shrink: 0; margin-left: 8px;">${item.upLevel}</span>
-          </div>
-          <div style="font-size: 11px; color: #888; margin-bottom: 4px;">${item.author} · 评分 ${item.score}</div>
-          <div style="font-size: 12px; color: #555;">${item.comment}</div>
-        </div>
-      `;
-    }).join('');
-
-    const levelBadges = Object.entries(data.upLevelSummary || {}).map(([level, desc]) => {
-      const color = levelColors[level] || '#747d8c';
-      return `<span style="font-size: 11px; padding: 2px 8px; border-radius: 10px; background: ${color}; color: white; cursor: help;" title="${desc}">${level}</span>`;
-    }).join(' ');
-
+    const html = markdownToHtml(markdown);
     resultDiv.innerHTML = `
-      <div style="padding: 10px; background: #fff3cd; border-radius: 6px; font-size: 12px; color: #856404; margin-bottom: 10px;">
-        ${data.summary}
+      <div style="max-height: 400px; overflow-y: auto; padding: 12px; background: #fafafa; border-radius: 8px; font-size: 13px; line-height: 1.6;">
+        ${html}
       </div>
-      ${data.topicInsights ? `
-      <div style="padding: 10px; background: #d4edda; border-radius: 6px; font-size: 12px; color: #155724; margin-bottom: 10px;">
-        💡 ${data.topicInsights}
-      </div>
-      ` : ''}
-      <div style="margin-bottom: 8px; font-size: 12px; color: #666;">UP主评级：${levelBadges}</div>
-      <div style="font-size: 12px; font-weight: bold; color: #666; margin-bottom: 8px;">Top 10</div>
-      ${rankingsHtml}
     `;
+  }
+
+  function markdownToHtml(md) {
+    let html = md
+      .replace(/^### (.+)$/gm, '<h4 style="margin: 16px 0 8px; font-size: 14px; color: #333;">$1</h4>')
+      .replace(/^## (.+)$/gm, '<h3 style="margin: 20px 0 10px; font-size: 15px; color: #00a1d6;">$1</h3>')
+      .replace(/^---$/gm, '<hr style="border: none; border-top: 1px solid #eee; margin: 16px 0;">')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^- (.+)$/gm, '<li style="margin-left: 16px;">$1</li>')
+      .replace(/^(\d+)\. (.+)$/gm, '<li style="margin-left: 16px; list-style-type: decimal;">$2</li>')
+      .replace(/^\| (.+) \|$/gm, (match, row) => {
+        const cells = row.split(' | ').map(c => c.trim());
+        return `<tr>${cells.map(c => `<td style="padding: 6px 10px; border: 1px solid #ddd;">${c}</td>`).join('')}</tr>`;
+      })
+      .replace(/\n\n/g, '</p><p style="margin: 8px 0;">')
+      .replace(/\n/g, '<br>');
+
+    if (html.includes('<tr>')) {
+      html = html.replace(/(<tr>.*<\/tr>)+/g, '<table style="width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px;">$&</table>');
+    }
+
+    return `<p style="margin: 8px 0;">${html}</p>`;
   }
 
   function init() {

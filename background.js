@@ -297,11 +297,11 @@ async function handleSaveAiConfig(message, sendResponse) {
 
 async function handleCallAiApi(message, sendResponse) {
   const { prompt } = message;
-
+  
   try {
     const result = await chrome.storage.local.get(['aiConfig']);
     const config = result.aiConfig || {};
-
+    
     if (!config.apiKey || !config.endpoint) {
       sendResponse({ success: false, error: '请先配置 API' });
       return;
@@ -331,20 +331,13 @@ async function handleCallAiApi(message, sendResponse) {
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content;
-
+    
     if (!content) {
       sendResponse({ success: false, error: 'API 返回内容为空' });
       return;
     }
 
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      sendResponse({ success: false, error: '无法解析 JSON' });
-      return;
-    }
-
-    const parsedData = JSON.parse(jsonMatch[0]);
-    sendResponse({ success: true, data: parsedData });
+    sendResponse({ success: true, content });
   } catch (error) {
     sendResponse({ success: false, error: error.message });
   }
