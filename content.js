@@ -13,7 +13,7 @@
     const btn = document.createElement('div');
     btn.id = TOGGLE_BTN_ID;
     btn.innerHTML = '📊';
-    btn.title = 'B站金铲子';
+    btn.title = '谁是金铲子';
     btn.style.cssText = `
       position: fixed;
       right: 20px;
@@ -72,7 +72,7 @@
       <div style="display: flex; flex-direction: column; max-height: 520px;">
         <div style="padding: 16px; background: linear-gradient(135deg, #00a1d6, #00b5e2); color: white; flex-shrink: 0;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; font-size: 16px;">📊 B站金铲子</h3>
+            <h3 style="margin: 0; font-size: 16px;">📊 谁是金铲子</h3>
             <button id="bili-analyzer-close" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">×</button>
           </div>
           <p id="bili-keyword-display" style="margin: 8px 0 0; font-size: 13px; opacity: 0.9;">当前关键词：-</p>
@@ -395,7 +395,7 @@
       favorites: v.favorites,
       duration: v.duration,
       pubdate: v.pubdate,
-      // bvid: v.bvid
+      bvid: v.bvid
     }));
 
     const systemPrompt = `你是一个B站内容分析专家。你的任务是根据用户的分析要求，对搜索结果中的视频数据进行多维度评估。
