@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>生成图标</title>
+</head>
+<body>
+  <h1>B站话题分析器图标生成器</h1>
+  <p>点击下面的按钮生成并下载图标文件</p>
+  
+  <canvas id="canvas16" width="16" height="16"></canvas>
+  <canvas id="canvas48" width="48" height="48"></canvas>
+  <canvas id="canvas128" width="128" height="128"></canvas>
+  
+  <br><br>
+  <button onclick="downloadIcon(16)">下载 16x16</button>
+  <button onclick="downloadIcon(48)">下载 48x48</button>
+  <button onclick="downloadIcon(128)">下载 128x128</button>
+  <button onclick="downloadAll()">下载全部</button>
+  
+  <script>
+    function drawIcon(canvas, size) {
+      const ctx = canvas.getContext('2d');
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#00a1d6');
+      gradient.addColorStop(1, '#00b5e2');
+      
+      ctx.beginPath();
+      ctx.arc(size/2, size/2, size/2 - 1, 0, Math.PI * 2);
+      ctx.fillStyle = gradient;
+      ctx.fill();
+      
+      ctx.fillStyle = 'white';
+      ctx.font = `bold ${size * 0.5}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('B', size/2, size/2 + 1);
+    }
+    
+    drawIcon(document.getElementById('canvas16'), 16);
+    drawIcon(document.getElementById('canvas48'), 48);
+    drawIcon(document.getElementById('canvas128'), 128);
+    
+    function downloadIcon(size) {
+      const canvas = document.getElementById('canvas' + size);
+      const link = document.createElement('a');
+      link.download = `icon${size}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+    
+    function downloadAll() {
+      [16, 48, 128].forEach((size, i) => {
+        setTimeout(() => downloadIcon(size), i * 500);
+      });
+    }
+  </script>
+</body>
+</html>
