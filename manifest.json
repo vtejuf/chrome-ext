@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "谁是金铲子",
+  "name": "B站金铲铲",
   "version": "1.0.0",
   "description": "对B站搜索结果进行多维数据分析",
   "permissions": [

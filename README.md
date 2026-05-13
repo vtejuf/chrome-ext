@@ -1,4 +1,4 @@
-# 谁是金铲子 - Chrome 扩展
+# B站金铲铲 - Chrome 扩展
 
 ## API 参考
 
