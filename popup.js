@@ -7,9 +7,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const configResponse = await chrome.runtime.sendMessage({ action: 'getAiConfig' });
   if (configResponse.success && configResponse.config) {
-    aiEndpoint.value = configResponse.config.endpoint || '';
-    aiKey.value = configResponse.config.apiKey || '';
-    aiModel.value = configResponse.config.model || 'gpt-3.5-turbo';
+    const cfg = configResponse.config;
+    aiEndpoint.value = cfg.endpoint || cfg.base_url || '';
+    aiKey.value = cfg.apiKey || cfg.api_key || '';
+    aiModel.value = cfg.model || 'deepseek-chat';
   }
 
   clearCacheBtn.addEventListener('click', async () => {
@@ -24,16 +25,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   saveAiConfigBtn.addEventListener('click', async () => {
-    const config = {
-      endpoint: aiEndpoint.value.trim(),
-      apiKey: aiKey.value.trim(),
-      model: aiModel.value.trim() || 'gpt-3.5-turbo'
-    };
+    let endpoint = aiEndpoint.value.trim();
+    const apiKey = aiKey.value.trim();
+    const model = aiModel.value.trim() || 'deepseek-chat';
 
-    if (!config.endpoint || !config.apiKey) {
+    if (!endpoint || !apiKey) {
       alert('请填写 API 端点和 API Key');
       return;
     }
+
+    if (!endpoint.includes('/v1/') && !endpoint.includes('/chat/completions')) {
+      endpoint = endpoint.replace(/\/$/, '') + '/v1/chat/completions';
+    }
+
+    const config = {
+      endpoint,
+      apiKey,
+      model
+    };
 
     const response = await chrome.runtime.sendMessage({
       action: 'saveAiConfig',

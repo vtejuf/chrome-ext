@@ -1,7 +1,7 @@
 {
   "name": "bili-golden-shovel",
   "version": "1.0.0",
-  "description": "B站话题分析器 - Chrome扩展",
+  "description": "B站金铲子 - Chrome扩展",
   "type": "module",
   "scripts": {
     "test": "echo \"请在Chrome浏览器中加载扩展进行测试\""

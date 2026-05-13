@@ -297,24 +297,32 @@ async function handleSaveAiConfig(message, sendResponse) {
 
 async function handleCallAiApi(message, sendResponse) {
   const { prompt } = message;
-  
+
   try {
     const result = await chrome.storage.local.get(['aiConfig']);
-    const config = result.aiConfig || {};
-    
-    if (!config.apiKey || !config.endpoint) {
+    const rawConfig = result.aiConfig || {};
+
+    const apiKey = rawConfig.apiKey || rawConfig.api_key;
+    let endpoint = rawConfig.endpoint || rawConfig.base_url;
+    const model = rawConfig.model || 'deepseek-chat';
+
+    if (!apiKey || !endpoint) {
       sendResponse({ success: false, error: '请先配置 API' });
       return;
     }
 
-    const response = await fetch(config.endpoint, {
+    if (!endpoint.includes('/v1/') && !endpoint.includes('/chat/completions')) {
+      endpoint = endpoint.replace(/\/$/, '') + '/v1/chat/completions';
+    }
+
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${config.apiKey}`
+        'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: config.model || 'gpt-3.5-turbo',
+        model,
         messages: [
           { role: 'system', content: AI_SYSTEM_PROMPT },
           { role: 'user', content: prompt }
@@ -331,7 +339,7 @@ async function handleCallAiApi(message, sendResponse) {
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content;
-    
+
     if (!content) {
       sendResponse({ success: false, error: 'API 返回内容为空' });
       return;

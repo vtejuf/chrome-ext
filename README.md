@@ -1,4 +1,4 @@
-# B站话题分析器 - Chrome 扩展
+# B站金铲子 - Chrome 扩展
 
 ## API 参考
 
