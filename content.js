@@ -138,9 +138,14 @@
           
           <div id="bili-result-summary" style="display: none; margin-bottom: 16px;">
             <div style="padding: 12px; background: #f8f9fa; border-radius: 6px;">
-              <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                 <span style="font-size: 13px; color: #666;">采集结果</span>
-                <span id="bili-cache-status" style="font-size: 12px; color: #999;"></span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span id="bili-cache-status" style="font-size: 12px; color: #999;"></span>
+                  <button id="bili-clear-cache" style="font-size: 11px; padding: 2px 8px; background: #fff; color: #999; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
+                    清除缓存
+                  </button>
+                </div>
               </div>
               <div id="bili-stats" style="font-size: 14px; color: #333;"></div>
             </div>
@@ -197,6 +202,7 @@
 
     document.getElementById('bili-start-fetch').addEventListener('click', startFetch);
     document.getElementById('bili-export-csv').addEventListener('click', exportCSV);
+    document.getElementById('bili-clear-cache').addEventListener('click', clearCache);
     document.getElementById('bili-ai-analyze').addEventListener('click', startAiAnalyze);
     document.getElementById('bili-copy-ai-prompt').addEventListener('click', copyAiPrompt);
     document.getElementById('bili-export-ai-prompt').addEventListener('click', exportAiPrompt);
@@ -238,6 +244,42 @@
     const display = document.getElementById('bili-keyword-display');
     if (display) {
       display.textContent = `当前关键词：${keyword || '未检测到'}`;
+    }
+  }
+
+  async function clearCache() {
+    const keyword = getKeyword();
+    if (!keyword) {
+      alert('未检测到搜索关键词');
+      return;
+    }
+
+    const btn = document.getElementById('bili-clear-cache');
+    btn.disabled = true;
+    btn.textContent = '清除中...';
+
+    try {
+      const response = await chrome.runtime.sendMessage({
+        action: 'clearKeywordCache',
+        keyword
+      });
+
+      if (response.success) {
+        btn.textContent = '已清除';
+        document.getElementById('bili-cache-status').textContent = '';
+        setTimeout(() => {
+          btn.textContent = '清除缓存';
+          btn.disabled = false;
+        }, 1500);
+      } else {
+        alert('清除失败：' + response.error);
+        btn.textContent = '清除缓存';
+        btn.disabled = false;
+      }
+    } catch (error) {
+      alert('清除失败：' + error.message);
+      btn.textContent = '清除缓存';
+      btn.disabled = false;
     }
   }
 

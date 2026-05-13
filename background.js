@@ -51,6 +51,9 @@ async function handleMessage(message, sender, sendResponse) {
       case 'clearData':
         await handleClearData(message, sendResponse);
         break;
+      case 'clearKeywordCache':
+        await handleClearKeywordCache(message, sendResponse);
+        break;
       case 'exportCSV':
         await handleExportCSV(message, sendResponse);
         break;
@@ -231,6 +234,16 @@ async function handleClearData(message, sendResponse) {
   } else {
     await clearAllData();
   }
+  sendResponse({ success: true });
+}
+
+async function handleClearKeywordCache(message, sendResponse) {
+  const { keyword } = message;
+  if (!keyword) {
+    sendResponse({ success: false, error: '缺少关键词' });
+    return;
+  }
+  await clearVideosByKeyword(keyword);
   sendResponse({ success: true });
 }
 
