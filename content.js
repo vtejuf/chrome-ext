@@ -12,7 +12,17 @@
 
     const btn = document.createElement('div');
     btn.id = TOGGLE_BTN_ID;
-    btn.innerHTML = '📊';
+    btn.innerHTML = `<svg viewBox="0 0 128 128" width="28" height="28">
+      <defs>
+        <linearGradient id="btnGold" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FFD700"/>
+          <stop offset="100%" stop-color="#B8860B"/>
+        </linearGradient>
+      </defs>
+      <rect x="58" y="12" width="12" height="56" rx="6" fill="url(#btnGold)"/>
+      <path d="M42 68 L86 68 L92 96 L36 96 Z" rx="8" fill="url(#btnGold)"/>
+      <path d="M50 72 L78 72 L80 88 L48 88 Z" fill="#FFF8DC" opacity="0.3"/>
+    </svg>`;
     btn.title = 'B站金铲铲';
     btn.style.cssText = `
       position: fixed;
@@ -20,26 +30,25 @@
       bottom: 80px;
       width: 48px;
       height: 48px;
-      background: linear-gradient(135deg, #00a1d6, #00b5e2);
+      background: linear-gradient(135deg, #2c2c2c, #1a1a1a);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0, 161, 214, 0.4);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       z-index: 9999;
       transition: transform 0.2s, box-shadow 0.2s;
     `;
 
     btn.addEventListener('mouseenter', () => {
       btn.style.transform = 'scale(1.1)';
-      btn.style.boxShadow = '0 6px 16px rgba(0, 161, 214, 0.5)';
+      btn.style.boxShadow = '0 6px 16px rgba(255, 215, 0, 0.4)';
     });
 
     btn.addEventListener('mouseleave', () => {
       btn.style.transform = 'scale(1)';
-      btn.style.boxShadow = '0 4px 12px rgba(0, 161, 214, 0.4)';
+      btn.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
     });
 
     btn.addEventListener('click', togglePanel);
@@ -72,7 +81,20 @@
       <div style="display: flex; flex-direction: column; max-height: 520px;">
         <div style="padding: 16px; background: linear-gradient(135deg, #00a1d6, #00b5e2); color: white; flex-shrink: 0;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; font-size: 16px;">📊 B站金铲铲</h3>
+            <h3 style="margin: 0; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+              <svg viewBox="0 0 128 128" width="20" height="20">
+                <defs>
+                  <linearGradient id="titleGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#FFD700"/>
+                    <stop offset="100%" stop-color="#B8860B"/>
+                  </linearGradient>
+                </defs>
+                <rect x="58" y="12" width="12" height="56" rx="6" fill="url(#titleGold)"/>
+                <path d="M42 68 L86 68 L92 96 L36 96 Z" rx="8" fill="url(#titleGold)"/>
+                <path d="M50 72 L78 72 L80 88 L48 88 Z" fill="#FFF8DC" opacity="0.3"/>
+              </svg>
+              B站金铲铲
+            </h3>
             <button id="bili-analyzer-close" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">×</button>
           </div>
           <p id="bili-keyword-display" style="margin: 8px 0 0; font-size: 13px; opacity: 0.9;">当前关键词：-</p>
