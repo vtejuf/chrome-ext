@@ -544,9 +544,10 @@ ${JSON.stringify(videosData, null, 2)}`;
     const prompt = buildAiPrompt();
     if (!prompt) return;
 
-    const config = await chrome.runtime.sendMessage({ action: 'getAiConfig' });
+    const response = await chrome.runtime.sendMessage({ action: 'getAiConfig' });
+    const config = response?.config || {};
 
-    if (!config || !config.apiKey) {
+    if (!config.apiKey) {
       document.getElementById('bili-ai-paste-section').style.display = 'block';
       document.getElementById('bili-ai-api-status').style.display = 'block';
       document.getElementById('bili-ai-api-status').textContent = '⚠️ 未配置 API，请使用「复制指令」粘贴到网页 AI，或前往扩展设置配置 API';
