@@ -1,17 +1,5 @@
 # B站金铲铲 - Chrome 扩展
 
-## API 参考
-
-```
-url:
-https://api.bilibili.com/x/web-interface/wbi/search/type?category_id=&search_type=video&ad_resource=5654&__refresh__=true&_extra=&context=&page=1&page_size=42&pubtime_begin_s=0&pubtime_end_s=0&from_source=&from_spmid=333.337&platform=pc&highlight=1&single_column=0&keyword=%E4%BA%A4%E6%98%93&qv_id=MdaysMlSPYPFDw0ZEcGQjkIVB8HdNDVN&source_tag=3&gaia_vtoken=&dynamic_offset=0&web_roll_page=1&web_location=1430654&w_rid=e8c303f398f87ec9ce47ab435d348ac9&wts=1778655865
-
-params:  ./searchParams.json
-response: ./response.json
-```
-
----
-
 ## 已完成功能
 
 ### 一、数据采集 ✅
